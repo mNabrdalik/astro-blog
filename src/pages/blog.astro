@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-import '../styles/global.css'
+import BlogPost from '../components/BlogPost.astro';
+const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
 
 ---
 
 <BaseLayout pageTitle="Astro | Blog">
     <h2>Recents posts</h2>
     <ul>
-        <li><a href="/posts/post-1">Post 1</a></li>
-        <li><a href="/posts/post-2">Post 2</a></li>
-        <li><a href="/posts/post-3">Post 3</a></li>
+        {allPosts.map((singlePost: any) => (
+            <BlogPost url={singlePost.url} title={singlePost.frontmatter.title}/>
+        ))}
     </ul>
 </BaseLayout>

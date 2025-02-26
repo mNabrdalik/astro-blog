@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogPost from '../../components/BlogPost.astro';
+
+// dynamic routing - process of creating multiple page routes from one file in Astro.
+// getStaticPaths() - A function that returns an array of page routes.
+// {params: ...} in getStaticPaths() - A value that defines the name of a page route generated dynamically.
+export async function getStaticPaths() {
+    const allPosts = Object.values(import.meta.glob('../posts/*.md', { eager: true }));
+
+    // OPTION A 
+    // this is a solution to have statically declared tags; all are written here below. 
+    //   return [
+    //     { params: { tag: "astro" }, props: {posts: allPosts} },
+    //     { params: { tag: "successes" }, props: {posts: allPosts} },
+    //     { params: { tag: "community" }, props: {posts: allPosts} },
+    //     { params: { tag: "blogging" }, props: {posts: allPosts} },
+    //     { params: { tag: "setbacks" }, props: {posts: allPosts} },
+    //     { params: { tag: "learning in public" }, props: {posts: allPosts} },
+    //   ];
+
+    //this is a solution to dynamically search all tags in each of our .md post files
+    /*
+    It goes through each Markdown post, one by one, and combines each array of tags into one single larger array. 
+    Then, it makes a new Set from all the individual tags it found (to ignore repeated values). Finally, it turns 
+    that set into an array (with no duplications), that you can use to show a list of tags on your page. */
+    const uniqueTags = [...new Set(allPosts.map((post: any) => post.frontmatter.tags).flat())];
+
+    return uniqueTags.map((tag) => {
+        const filteredPosts = allPosts.filter((post: any) => post.frontmatter.tags.includes(tag));
+        return {
+            params: { tag },
+            props: { posts: filteredPosts },
+        };
+    }); 
+
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+// OPTION A 
+// this is a code when we have statically declared tags with imported posts;
+// const filteredPosts = posts.filter((post: any) => post.frontmatter.tags?.includes(tag));
+---
+<BaseLayout pageTitle={tag}>
+  <p>Posts tagged with {tag}</p>
+  <ul>
+    {/*
+    // OPTION A 
+    // this is a code when we have statically declared tags with imported posts;
+    {filteredPosts.map((singePost: any) => (
+        <li><BlogPost url={singePost.url} title={singePost.frontmatter.title}/></li>
+    ))}
+    */}
+    {posts.map((post: any) => <BlogPost url={post.url} title={post.frontmatter.title}/>)}
+
+  </ul>
+</BaseLayout>
