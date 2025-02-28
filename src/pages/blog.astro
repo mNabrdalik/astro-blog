@@ -1,7 +1,8 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BlogPost from '../components/BlogPost.astro';
-const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
+const allPosts = await getCollection("blog");
 
 ---
 
@@ -9,7 +10,7 @@ const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true })
     <h2>Recents posts</h2>
     <ul>
         {allPosts.map((singlePost: any) => (
-            <BlogPost url={singlePost.url} title={singlePost.frontmatter.title}/>
+            <BlogPost url={`/posts/${singlePost.id}/`} title={singlePost.data.title} />
         ))}
     </ul>
 </BaseLayout>
